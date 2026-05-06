@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// food ordering app
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  fullName          String
+  phoneNumber       String
+  password          String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orders            Order[]
+  cart              Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  cartId            String   @unique
+  role              Role     @default(USER)
+  verified          Boolean  @default(false)
+  verificationToken String?
+
+  @@map("users")
+}
+
+model Item {
+  id                     String      @id @default(uuid())
+  name                   String
+  priceInRwf             Int
+  price                  Float
+  image                  String
+  imagePath              String
+  description            String
+  isAvailableForPurchase Boolean     @default(true)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  quantityAvailable      Int         @default(1)
+  // downloadVerifications  DownloadVerification[]
+  // Order                  Order?   @relation(fields: [orderId], references: [id])
+  // orderId                String?
+  Order                  Order[]
+  cartId                 String?
+  Restaurant             Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId           String?
+  Menu                   Menu?       @relation(fields: [menuId], references: [id])
+  menuId                 String?
+  CartItem               CartItem[]
+
+  @@map("items")
+}
+
+model Order {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  items      Item[]
+  cart       Cart     @relation(fields: [cartId], references: [id])
+  cartId     String
+  totalPrice Float
+  status     Status   @default(PENDING)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Cart {
+  id         String     @id @default(cuid())
+  user       User?
+  userId     String?    @unique
+  items      CartItem[]
+  totalPrice Float
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  Order      Order[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  item      Item     @relation(fields: [itemId], references: [id])
+  itemId    String
+  quantity  Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  cartId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cart_items")
+}
+
+model Restaurant {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  phoneNumber String
+  imagePath   String?
+  image       String?
+  rating      Float    @default(0)
+  menu        Item[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Menu        Menu[]
+
+  @@map("restaurants")
+}
+
+// To be implemented later or not
+model Menu {
+  id           String   @id @default(cuid())
+  name         String
+  items        Item[]
+  // restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("menus")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+}
