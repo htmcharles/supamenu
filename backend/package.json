@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/app.ts --ignore \"*.json\"",
-    "start": "node dist/src/app.js",
+    "dev": "node api.js && nodemon src/app.ts --ignore \"*.json\"",
+    "start": "node api.js && node dist/src/app.js",
     "tsc": "tsc",
     "build": "pnpm generate && tsc",
     "preview": "node dist/src/app.js",
