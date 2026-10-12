@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "node api.js && nodemon src/app.ts --ignore \"*.json\"",
-    "start": "node api.js && node dist/src/app.js",
+    "dev": "node init && nodemon src/app.ts --ignore \"*.json\"",
+    "start": "node init && node dist/src/app.js",
     "tsc": "tsc",
-    "build": "pnpm generate && tsc",
+    "build": "node init && pnpm generate && tsc",
     "preview": "node dist/src/app.js",
     "generate": "prisma generate",
     "swagger": "ts-node swagger.ts",
